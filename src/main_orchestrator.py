@@ -10,7 +10,7 @@ import argparse
 from pathlib import Path
 import numpy as np
 
-from .conversion_utils import save_fp32_with_fixed_shapes, convert_to_opset22, fix_dynamic_input_shapes
+from .conversion_utils import save_static_opset22_with_fixed_shapes, convert_to_opset22, fix_dynamic_input_shapes
 from .activation_transforms import cast_sandwich_model, weights_only_quantize_model, full_bf16_model
 from .testing_utils import test_model, analyze_model_operations
 from .metrics_utils import compare_models
@@ -120,20 +120,20 @@ def process_batch_models(model_list, output_dir=None, test_original=True):
             print(f"PROCESSING: {os.path.basename(model_path)}")
             print(f"{'='*80}")
             
-            # First, create FP32 model with fixed shapes
+            # First, create static opset22 model with fixed shapes
             model_name = Path(model_path).stem
             output_dir_path = Path(output_dir) if output_dir else Path("output_models")
-            fp32_fixed_path = output_dir_path / f"{model_name}_fp32.onnx"
+            static_opset22_fixed_path = output_dir_path / f"{model_name}_static_opset22.onnx"
             
-            print(f"\n{'='*30} MODE 0: FP32 WITH FIXED SHAPES {'='*30}")
-            fp32_fixed_model = save_fp32_with_fixed_shapes(model_path, str(fp32_fixed_path))
+            print(f"\n{'='*30} MODE 0: STATIC OPSET22 WITH FIXED SHAPES {'='*30}")
+            static_opset22_fixed_model = save_static_opset22_with_fixed_shapes(model_path, str(static_opset22_fixed_path))
             
-            if fp32_fixed_model is None:
-                print(f"Failed to create FP32 model with fixed shapes for {model_name}")
+            if static_opset22_fixed_model is None:
+                print(f"Failed to create static opset22 model with fixed shapes for {model_name}")
                 continue
             
-            # Use the FP32 fixed shape model as input for all other conversions
-            base_model_path = str(fp32_fixed_path)
+            # Use the static opset22 fixed shape model as input for all other conversions
+            base_model_path = str(static_opset22_fixed_path)
             
             # Process with full cast sandwiching
             print(f"\n{'='*30} MODE 1: FULL CAST SANDWICHING {'='*30}")
@@ -152,7 +152,7 @@ def process_batch_models(model_list, output_dir=None, test_original=True):
                 combined_result = {
                     'model_name': model_name,
                     'input_path': model_path,
-                    'fp32_fixed_path': str(fp32_fixed_path),
+                    'static_opset22_fixed_path': str(static_opset22_fixed_path),
                     'original_success': result_full['original_success'],
                     'full_cast_sandwiching': result_full,
                     'weights_only': result_weights,
@@ -236,7 +236,7 @@ def generate_comprehensive_summary(all_results, output_dir=None):
         print("No models were successfully processed in all modes")
     
     print(f"\n📁 All output models saved to: {output_dir or 'output_models/'}")
-    print("💡 Note: FP32 models with fixed shapes are saved as *_fp32.onnx")
+    print("💡 Note: Static opset22 models with fixed shapes are saved as *_static_opset22.onnx")
     print("💡 Note: Full BF16 models are created for future use with BF16-compatible runtimes")
     print("Processing complete!")
 
@@ -244,8 +244,8 @@ def generate_comprehensive_summary(all_results, output_dir=None):
 def get_default_test_models():
     """Get default list of test models for batch processing."""
     return [
-        "input_models/moonshine_encoder_fp32_opset22.onnx",
-        "input_models/moonshine_decoder_fp32_opset22.onnx", 
-        "input_models/yealink_fp32_opset22.onnx",
-        "input_models/mobilenet_v2_fp32.onnx"
+        "input_models/moonshine_encoder_static_opset22.onnx",
+        "input_models/moonshine_decoder_static_opset22.onnx", 
+        "input_models/yealink_static_opset22.onnx",
+        "input_models/mobilenet_v2_static_opset22.onnx"
     ]

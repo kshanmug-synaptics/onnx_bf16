@@ -18,7 +18,7 @@ convert_onnx_models/
 │   ├── model2.onnx
 │   └── ...
 ├── output_models/                # Generated models directory
-│   ├── {model}_fp32.onnx        # FP32 with fixed shapes
+│   ├── {model}_static_opset22.onnx  # Static opset22 with fixed shapes
 │   ├── {model}_cast_sandwich.onnx   # Cast sandwiched models
 │   ├── {model}_weights_bf16.onnx    # Weights-only BF16 models
 │   └── {model}_bf16.onnx            # Full BF16 models
@@ -104,7 +104,7 @@ For each input model, the following files are generated:
 
 | Mode | Output File | ONNX Runtime | Testing | Description |
 |------|-------------|--------------|---------|-------------|
-| Baseline | `{model}_fp32.onnx` | ✅ | ✅ | FP32 with fixed shapes |
+| Baseline | `{model}_static_opset22.onnx` | ✅ | ✅ | Static opset22 with fixed shapes |
 | Cast Sandwich | `{model}_cast_sandwich.onnx` | ✅ | ✅ | BF16→FP32→BF16 operations |
 | Weights-Only | `{model}_weights_bf16.onnx` | ✅ | ✅ | BF16 weights, FP32 activations |
 | Full BF16 | `{model}_bf16.onnx` | ❌ | ⏭️ | Native BF16 (future use) |
@@ -141,7 +141,7 @@ Average Relative Error:
 🎯 Weights-only quantization shows better accuracy on average!
 
 📁 All output models saved to: output_models/
-💡 Note: FP32 models with fixed shapes are saved as *_fp32.onnx
+💡 Note: Static opset22 models with fixed shapes are saved as *_static_opset22.onnx
 💡 Note: Full BF16 models are created for future use with BF16-compatible runtimes
 Processing complete!
 ```
@@ -149,7 +149,7 @@ Processing complete!
 ### Error Analysis
 
 For each testable mode, the tool computes:
-- **Relative Error**: Sum of absolute differences relative to FP32 baseline
+- **Relative Error**: Sum of absolute differences relative to static opset22 baseline
 - **Signal-to-Noise Ratio (SNR)**: Quality metric in decibels
 - **Normalized RMSE**: Root mean square error normalized by output range
 
@@ -161,7 +161,7 @@ For each testable mode, the tool computes:
 
 ### 📊 **Comprehensive Testing**
 - Automatic inference validation for ONNX Runtime compatible models
-- Numerical analysis comparing all modes to FP32 baseline
+- Numerical analysis comparing all modes to static opset22 baseline
 - Error metrics: relative error, SNR, normalized RMSE
 
 ### 🔧 **Robust Processing**

@@ -232,15 +232,15 @@ def convert_weights_to_bf16(graph):
     return weights_converted
 
 
-def save_fp32_with_fixed_shapes(model_path, output_path):
+def save_static_opset22_with_fixed_shapes(model_path, output_path):
     """
-    Load an FP32 ONNX model, fix dynamic input shapes to static shapes, and save it.
+    Load an ONNX model, fix dynamic input shapes to static shapes, and save it.
     
-    - Model remains completely FP32
+    - Model remains completely FP32 
     - Only fixes dynamic input shapes to static shapes
     - Important for IREE compilation compatibility
     """
-    print(f"Loading model: {model_path} (mode: FP32 with fixed shapes)")
+    print(f"Loading model: {model_path} (mode: static opset22 with fixed shapes)")
     start_time = time.time()
     
     try:
@@ -269,7 +269,7 @@ def save_fp32_with_fixed_shapes(model_path, output_path):
     
     try:
         onnx.save(m, output_path)
-        print(f"Saved FP32 model with fixed shapes to: {output_path}")
+        print(f"Saved static opset22 model with fixed shapes to: {output_path}")
         
         conversion_time = time.time() - start_time
         print(f"Conversion completed in {conversion_time:.2f} seconds")

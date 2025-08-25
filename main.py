@@ -3,7 +3,19 @@
 Universal ONNX BF16 Precision Conversion Pipeline
 
 A directory-based Python tool for converting ONNX models with multiple BF16 quantization strategies:
-- Cast sandwiching: BF16 → FP32 → BF16 around each computational operation
+- Cast sandwiching: BF16 → FP32 → BF16 around each computational o                      static_opset22_path = output_dir / f"{model_name}_static_opset22.onnx"
+                static_opset22_model = save_static_opset22_with_fixed_shapes(str(input_path), str(static_opset22_path))
+                
+                if static_opset22_model:
+                    # Process with all modes using the static opset22 baseline
+                    all_results = process_batch_models(
+                        [str(static_opset22_path)])   static_opset22_path = output_dir / f"{model_name}_static_opset22.onnx"
+                static_opset22_model = save_static_opset22_with_fixed_shapes(str(input_path), str(static_opset22_path))
+                
+                if static_opset22_model:
+                    # Process with all modes using the static opset22 baseline
+                    result = process_models_in_batch_mode(
+                        [str(static_opset22_path)])n
 - Weights-only quantization: BF16 weights with FP32 activations  
 - Full BF16 conversion: Native BF16 weights and activations
 
@@ -27,7 +39,7 @@ from src.main_orchestrator import (
     generate_comprehensive_summary,
     get_default_test_models
 )
-from src.conversion_utils import save_fp32_with_fixed_shapes
+from src.conversion_utils import save_static_opset22_with_fixed_shapes
 
 
 def process_directory(input_dir, output_dir=None, mode="all", test_original=True):
@@ -158,7 +170,7 @@ Examples:
     parser.add_argument(
         "--fix-shapes-only", 
         action="store_true", 
-        help="Only fix dynamic input shapes to static shapes, keep model as FP32"
+        help="Only fix dynamic input shapes to static shapes, keep model as static opset22"
     )
     
     args = parser.parse_args()
@@ -197,7 +209,7 @@ Examples:
             output_dir.mkdir(parents=True, exist_ok=True)
         
         model_name = input_path.stem
-        output_path = output_dir / f"{model_name}_fp32.onnx"
+        output_path = output_dir / f"{model_name}_static_opset22.onnx"
         
         print(f"\n{'='*60}")
         print(f"FIXING INPUT SHAPES: {model_name}")
@@ -205,11 +217,11 @@ Examples:
         print(f"Input:  {input_path}")
         print(f"Output: {output_path}")
         
-        result = save_fp32_with_fixed_shapes(str(input_path), str(output_path))
+        result = save_static_opset22_with_fixed_shapes(str(input_path), str(output_path))
         
         if result:
             print(f"\n{'='*20} SUCCESS {'='*20}")
-            print(f"FP32 model with fixed shapes saved to: {output_path}")
+            print(f"Static opset22 model with fixed shapes saved to: {output_path}")
         else:
             print(f"\n{'='*20} FAILED {'='*20}")
             print(f"Failed to fix shapes for {model_name}")
@@ -235,7 +247,7 @@ Examples:
             if args.mode == "all":
                 print("Warning: Single file processing with --mode=all will process the file with all three modes")
                 
-                # Create FP32 baseline first
+                # Create static opset22 baseline first
                 model_name = input_path.stem
                 if args.output_dir:
                     output_dir = Path(args.output_dir)
@@ -243,13 +255,13 @@ Examples:
                     output_dir = input_path.parent
                 output_dir.mkdir(parents=True, exist_ok=True)
                 
-                fp32_path = output_dir / f"{model_name}_fp32.onnx"
-                fp32_model = save_fp32_with_fixed_shapes(str(input_path), str(fp32_path))
+                static_opset22_path = output_dir / f"{model_name}_static_opset22.onnx"
+                static_opset22_model = save_static_opset22_with_fixed_shapes(str(input_path), str(static_opset22_path))
                 
-                if fp32_model:
-                    # Process with all modes using the FP32 baseline
+                if static_opset22_model:
+                    # Process with all modes using the static opset22 baseline
                     all_results = process_batch_models(
-                        [str(fp32_path)], 
+                        [str(static_opset22_path)], 
                         str(output_dir), 
                         not args.no_test_original
                     )
