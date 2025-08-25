@@ -16,43 +16,45 @@ import time
 from .conversion_utils import convert_to_opset22, fix_dynamic_input_shapes, convert_weights_to_bf16
 
 
-def get_expected_output_type(op_type, input_types):
+def get_original_output_types(original_graph, node_name, output_names):
     """
-    Determine the expected output type for an operation based on its type and input types.
-    This helps us preserve correct types for operations like Shape (which outputs int64).
+    Get the original output types for a node from the original graph.
+    This preserves the exact type information from the source model.
     """
-    # Operations that always output specific types regardless of input
-    if op_type == "Shape":
-        return TensorProto.INT64
-    elif op_type == "Size":
-        return TensorProto.INT64
-    elif op_type in ["Equal", "Greater", "Less", "GreaterOrEqual", "LessOrEqual", "Not", "And", "Or"]:
-        return TensorProto.BOOL
-    elif op_type in ["ArgMax", "ArgMin", "NonZero"]:
-        return TensorProto.INT64
-    elif op_type in ["Cast"]:
-        # Cast operations output whatever type they're casting to
-        # This will be handled separately in the cast logic
-        return TensorProto.FLOAT  # Default assumption
-    elif op_type in ["Constant"]:
-        # Constants output their defined type
-        return TensorProto.FLOAT  # Default assumption
-    elif op_type in ["Split", "Slice", "Gather", "GatherElements", "Unsqueeze", "Squeeze", "Expand", "Reshape"]:
-        # These ops preserve the primary input type
-        if input_types and input_types[0] in [TensorProto.INT64, TensorProto.INT32, TensorProto.INT8, TensorProto.BOOL]:
-            return input_types[0]
-        return TensorProto.FLOAT  # Default to FP32 for float-like operations
+    output_types = []
     
-    # For most other operations, if any input is FP32, output is likely FP32
-    if TensorProto.FLOAT in input_types:
-        return TensorProto.FLOAT
+    # First, try to find the node in the original graph
+    original_node = None
+    for node in original_graph.node:
+        if node.name == node_name:
+            original_node = node
+            break
     
-    # For operations with no FP32 inputs, preserve the primary input type
-    if input_types:
-        return input_types[0]  # Use first input type as default
+    if original_node:
+        # For each output, try to determine its type from value_info or graph outputs
+        for i, output_name in enumerate(output_names):
+            found_type = None
+            
+            # Check if this output is a graph output
+            for graph_output in original_graph.output:
+                if graph_output.name == output_name:
+                    found_type = graph_output.type.tensor_type.elem_type
+                    break
+            
+            # Check value_info for intermediate tensor types
+            if found_type is None:
+                for value_info in original_graph.value_info:
+                    if value_info.name == output_name:
+                        found_type = value_info.type.tensor_type.elem_type
+                        break
+            
+            output_types.append(found_type)
+    else:
+        # If we can't find the original node, use fallback logic
+        for output_name in output_names:
+            output_types.append(TensorProto.FLOAT)  # Safe default
     
-    # Default fallback
-    return TensorProto.FLOAT
+    return output_types
 
 
 def create_cast_sandwiched_graph(model):
@@ -63,6 +65,7 @@ def create_cast_sandwiched_graph(model):
     Only applies cast sandwiching to FP32 tensors, preserves int64/bool/etc. types.
     """
     g = model.graph
+    original_graph = g  # Keep reference to original graph for type information
     
     print(f"Original model has {len(g.node)} nodes")
     
@@ -165,11 +168,8 @@ def create_cast_sandwiched_graph(model):
                 input_types_for_op.append(TensorProto.FLOAT)  # Default assumption
                 fp32_input_indices.append(j)  # Assume FP32 for safety
         
-        # Determine expected output types for this operation
-        expected_output_types = []
-        for j, output_name in enumerate(n.output):
-            expected_type = get_expected_output_type(n.op_type, input_types_for_op)
-            expected_output_types.append(expected_type)
+        # Determine expected output types for this operation from original graph
+        expected_output_types = get_original_output_types(original_graph, n.name, list(n.output))
         
         # Only apply cast sandwiching if we have FP32 inputs and FP32 outputs
         has_fp32_inputs = len(fp32_input_indices) > 0
