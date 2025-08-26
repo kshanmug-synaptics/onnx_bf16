@@ -18,12 +18,11 @@ convert_onnx_models/
 │   ├── model2.onnx
 │   └── ...
 ├── output_models/                # Generated models directory
-│   ├── {model}_static_opset22.onnx  # Static opset22 with fixed shapes
-│   ├── {model}_cast_sandwich.onnx   # Cast sandwiched models
-│   ├── {model}_weights_bf16.onnx    # Weights-only BF16 models
-│   └── {model}_bf16.onnx            # Full BF16 models
-└── .vscode/
-    └── launch.json               # VS Code debug configurations
+    ├── {model}_static_opset22.onnx  # Static opset22 with fixed shapes
+    ├── {model}_cast_sandwich.onnx   # Cast sandwiched models
+    ├── {model}_weights_bf16.onnx    # Weights-only BF16 models
+    └── {model}_bf16.onnx            # Full BF16 models
+
 ```
 
 ## Conversion Modes
@@ -196,12 +195,6 @@ Install dependencies using:
 ```bash
 pip install -r requirements.txt
 ```
-
-### Core Dependencies:
-- `onnx>=1.14.0` - ONNX model manipulation and opset 22 support
-- `onnxruntime>=1.15.0` - ONNX inference testing and validation
-- `numpy>=1.21.0` - Numerical operations and BF16 conversion
-- `onnxsim>=0.4.0` - Model simplification and shape inference
 
 ## Example Workflow
 
