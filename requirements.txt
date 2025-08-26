@@ -1,0 +1,11 @@
+# ONNX BF16 Conversion Pipeline Requirements
+
+# Core ONNX dependencies
+onnx              # ONNX model loading, manipulation, and saving
+onnxruntime       # ONNX model inference and testing
+# Numerical computing
+numpy             # Array operations, BF16 conversion, metrics computation
+# ONNX utilities  
+onnxsim            # Model simplification and shape inference (optional but recommended)
+# Python compatibility
+pathlib2

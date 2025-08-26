@@ -1,4 +1,4 @@
-# ONNX Model Precision Conversion
+# ONNX Model Precision Conversion and Testing
 
 A directory-based Python tool for converting ONNX models with multiple BF16 quantization strategies: cast sandwiching, weights-only quantization, and full BF16 conversion.
 
@@ -200,10 +200,17 @@ For each testable mode, the tool computes:
 
 ## Dependencies
 
-- `onnx` - ONNX model manipulation
-- `onnxruntime` - ONNX inference testing
-- `numpy` - Numerical operations
-- `pathlib` - Path handling
+Install dependencies using:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Core Dependencies:
+- `onnx>=1.14.0` - ONNX model manipulation and opset 22 support
+- `onnxruntime>=1.15.0` - ONNX inference testing and validation
+- `numpy>=1.21.0` - Numerical operations and BF16 conversion
+- `onnxsim>=0.4.0` - Model simplification and shape inference
 
 ## Example Workflow
 
