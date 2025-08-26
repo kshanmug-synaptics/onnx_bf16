@@ -244,8 +244,8 @@ def generate_comprehensive_summary(all_results, output_dir=None):
 def get_default_test_models():
     """Get default list of test models for batch processing."""
     return [
-        "input_models/moonshine_encoder_static_opset22.onnx",
-        "input_models/moonshine_decoder_static_opset22.onnx", 
-        "input_models/yealink_static_opset22.onnx",
-        "input_models/mobilenet_v2_static_opset22.onnx"
+        "input_models/moonshine_encoder.onnx",
+        "input_models/moonshine_decoder.onnx", 
+        "input_models/yealink.onnx",
+        "input_models/mobilenet_v2.onnx"
     ]

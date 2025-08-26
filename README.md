@@ -113,21 +113,29 @@ COMPREHENSIVE SUMMARY: ALL QUANTIZATION MODES
 
 Model                               Mode                      Success  Rel Error (%)  SNR (dB)  
 --------------------------------------------------------------------------------------------
-mobilenet_v2                        Full Cast                 ✓        0.0012%        68.54     
-                                     Weights-Only              ✓        0.0008%        72.31     
-                                     Full BF16                 ✓        N/A            N/A       
+moonshine_encoder                   Full Cast                 ✓        2.3570%        34.86     
+                                    Weights-Only              ✓        1.1184%        42.53     
+                                    Full BF16                 ✓        N/A            N/A       
 --------------------------------------------------------------------------------------------
-moonshine_encoder                    Full Cast                 ✓        0.0045%        58.22     
-                                     Weights-Only              ✓        0.0031%        61.87     
-                                     Full BF16                 ✓        N/A            N/A       
+moonshine_decoder                   Full Cast                 ✓        0.1753%        53.68     
+                                    Weights-Only              ✓        0.4999%        45.62     
+                                    Full BF16                 ✓        N/A            N/A       
+--------------------------------------------------------------------------------------------
+yealink                             Full Cast                 ✓        0.1534%        54.70     
+                                    Weights-Only              ✓        0.0070%        80.56     
+                                    Full BF16                 ✓        N/A            N/A       
+--------------------------------------------------------------------------------------------
+mobilenet_v2                        Full Cast                 ✓        2.8101%        30.95     
+                                    Weights-Only              ✓        2.8429%        30.83     
+                                    Full BF16                 ✓        N/A            N/A       
 --------------------------------------------------------------------------------------------
 
 ==================== ANALYSIS SUMMARY ====================
-Successfully processed 2/2 models in all modes
+Successfully processed 4/4 models in all modes
 
 Average Relative Error:
-  Full Cast Sandwiching: 0.0029%
-  Weights-Only:          0.0020%
+  Full Cast Sandwiching: 1.3740%
+  Weights-Only:          1.1171%
 
 🎯 Weights-only quantization shows better accuracy on average!
 
