@@ -31,7 +31,7 @@ convert_onnx_models/
 ### 1. Cast Sandwiching
 - **Strategy**: BF16 → FP32 → BF16 around each computational operation
 - **Input**: FP32 type but receives BF16 bit patterns
-- **Weights**: BF16 bit patterns with stochastic rounding
+- **Weights**: BF16 bit patterns with round-to-nearest-even
 - **Computation**: FP32 precision with BF16 precision loss simulation
 - **Output**: FP32 type
 - **Compatible**: ✅ ONNX Runtime testable
@@ -39,7 +39,7 @@ convert_onnx_models/
 ### 2. Weights-Only Quantization
 - **Strategy**: BF16 weights, FP32 activations
 - **Input**: FP32 type and precision
-- **Weights**: BF16 bit patterns with stochastic rounding
+- **Weights**: BF16 bit patterns with round-to-nearest-even
 - **Computation**: FP32 precision throughout
 - **Output**: FP32 type and precision
 - **Compatible**: ✅ ONNX Runtime testable
@@ -89,14 +89,6 @@ Options:
   --mode, -m MODE          Processing mode: all, cast_sandwich, weights_only, full_bf16 (default: all)
   --no-test-original       Skip testing original models (faster)
 ```
-
-### VS Code Integration
-
-Four debug configurations available in `.vscode/launch.json`:
-- **"Python: ONNX Conversion (All Modes)"** - Process with all three modes
-- **"Python: ONNX Conversion (Cast Sandwich Only)"** - Cast sandwiching only
-- **"Python: ONNX Conversion (Weights-Only)"** - Weights-only quantization only
-- **"Python: ONNX Conversion (Full BF16)"** - Full BF16 conversion only
 
 ## Output Structure
 
@@ -151,13 +143,12 @@ Processing complete!
 For each testable mode, the tool computes:
 - **Relative Error**: Sum of absolute differences relative to static opset22 baseline
 - **Signal-to-Noise Ratio (SNR)**: Quality metric in decibels
-- **Normalized RMSE**: Root mean square error normalized by output range
 
 ## Key Features
 
-### 🎯 **Stochastic Rounding**
+### 🎯 **Round-to-Nearest-Even**
 - Improved numerical properties for BF16 weight conversion
-- Better convergence compared to round-to-nearest-even
+- Better deterministic behavior compared to stochastic rounding
 
 ### 📊 **Comprehensive Testing**
 - Automatic inference validation for ONNX Runtime compatible models
@@ -182,13 +173,13 @@ For each testable mode, the tool computes:
 ## Technical Details
 
 ### Cast Sandwiching Implementation
-1. **Weights**: Convert FP32 weights to BF16 bit patterns using stochastic rounding
+1. **Weights**: Convert FP32 weights to BF16 bit patterns using round-to-nearest-even
 2. **Operations**: Wrap each computational operation with Cast(BF16→FP32) and Cast(FP32→BF16)
 3. **Inputs**: Accept FP32 type containing BF16 bit patterns
 4. **Outputs**: Produce FP32 type for compatibility
 
 ### Weights-Only Implementation
-1. **Weights**: Convert FP32 weights to BF16 bit patterns using stochastic rounding
+1. **Weights**: Convert FP32 weights to BF16 bit patterns using round-to-nearest-even
 2. **Operations**: Preserve original FP32 computation
 3. **Types**: Keep all tensor types as FP32 for ONNX Runtime compatibility
 
